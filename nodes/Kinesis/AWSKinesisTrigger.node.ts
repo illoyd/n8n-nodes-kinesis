@@ -100,7 +100,7 @@ export class AwsKinesisTrigger implements INodeType {
 				accessKeyId: credentials?.accessKeyId,
 				secretAccessKey: credentials?.secretAccessKey,
 			},
-			endpoint: 'http://localhost:4566',
+			// endpoint: 'http://localhost:4566',
 			streamName,
 			consumerGroup,
 			createStreamIfNeeded,
