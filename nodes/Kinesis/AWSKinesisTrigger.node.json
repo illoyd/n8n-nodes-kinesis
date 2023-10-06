@@ -1,5 +1,5 @@
 {
-	"node": "n8n-nodes-base.AwsKinesisTrigger",
+	"node": "n8n-nodes-base.awsKinesisTrigger",
 	"nodeVersion": "1.0",
 	"codexVersion": "1.0",
 	"categories": ["Development"],

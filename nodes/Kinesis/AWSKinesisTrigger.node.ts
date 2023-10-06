@@ -9,7 +9,7 @@ import { N8nKinesisClient } from './client';
 export class AwsKinesisTrigger implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: 'AWS Kinesis Trigger',
-		name: 'AwsKinesisTrigger',
+		name: 'awsKinesisTrigger',
 		icon: 'file:aws-kinesis.svg',
 		group: ['trigger'],
 		version: [1, 1.1],
