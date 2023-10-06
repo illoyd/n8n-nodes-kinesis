@@ -4,8 +4,7 @@ import type {
 	ITriggerFunctions,
 	ITriggerResponse,
 } from 'n8n-workflow';
-
-const Kinesis = require('lifion-kinesis');
+import { N8nKinesisClient } from './client';
 
 export class AwsKinesisTrigger implements INodeType {
 	description: INodeTypeDescription = {
@@ -84,81 +83,75 @@ export class AwsKinesisTrigger implements INodeType {
 		const createStreamIfNeeded = Boolean(this.getNodeParameter('createStreamIfNeeded'));
 		const fromBeginning = Boolean(this.getNodeParameter('fromBeginning'));
 
-		let kinesis: any;
-
-		const executeTrigger = async () => {
-			// console.log('setting timeout');
-			// setTimeout(() => {
-			// 	console.log('timeout triggered');
-			// 	kinesis.stopConsumer();
-			// }, 5000);
-
-			if (kinesis) {
-				console.log('Kinesis Consumer already running');
-				return;
+		const safeParse = (input: string): string | object => {
+			try {
+				return JSON.parse(input);
+			} catch (e) {
+				return input;
 			}
+		};
 
-			// Create the stream listener
-			kinesis = new Kinesis({
+		const kinesis = new N8nKinesisClient({
+			region: credentials?.region,
+			accessKeyId: credentials?.accessKeyId,
+			secretAccessKey: credentials?.secretAccessKey,
+			dynamoDb: {
 				region: credentials?.region,
 				accessKeyId: credentials?.accessKeyId,
 				secretAccessKey: credentials?.secretAccessKey,
-				dynamoDb: {
-					region: credentials?.region,
-					accessKeyId: credentials?.accessKeyId,
-					secretAccessKey: credentials?.secretAccessKey,
-				},
-				endpoint: 'http://localhost:4566',
-				streamName,
-				consumerGroup,
-				createStreamIfNeeded,
-				initialPositionInStream: fromBeginning ? 'TRIM_HISTORY' : 'LATEST',
-				logger: console,
-				// usePausedPolling: true,
+			},
+			endpoint: 'http://localhost:4566',
+			streamName,
+			consumerGroup,
+			createStreamIfNeeded,
+			initialPositionInStream: fromBeginning ? 'TRIM_HISTORY' : 'LATEST',
+			logger: console,
+			// usePausedPolling: true,
+		});
+
+		// Attach events
+		kinesis.on('data', (data: any) => {
+			// Process body
+			data.records.forEach((record: any) => {
+				// If a buffer, convert to a string
+				if (Buffer.isBuffer(record.data))
+					record.data = Buffer.from(record.data, 'base64').toString();
+
+				console.log('first', record.data);
+
+				// If a string, try to parse as JSON
+				if (typeof record.data === 'string') record.data = safeParse(record.data);
+
+				console.log('second', record.data);
+
+				// If still a string, wrap into a document for ease of reference
+				if (typeof record.data === 'string') record.data = { data: record.data };
 			});
 
-			// Attach events
-			kinesis.on('data', (data: any) => {
-				// Process body
-				data.records.forEach((record: any) => {
-					// If a buffer, convert to a string
-					if (Buffer.isBuffer(record.data))
-						record.data = Buffer.from(record.data, 'base64').toString();
-
-					// If a string, try to parse as JSON
-					if (typeof record.data === 'string') record.data = JSON.parse(record.data);
-				});
-
-				// Select what to return
-				switch (simplifyResponse) {
-					case 'message':
-						this.emit([this.helpers.returnJsonArray(data)]);
-						break;
-					case 'record':
-						this.emit([this.helpers.returnJsonArray(data.records)]);
-						break;
-					case 'data':
-						this.emit([this.helpers.returnJsonArray(data.records.map((r: any) => r.data))]);
-						break;
-				}
-				// kinesis.setCheckpoint();
-			});
-
-			console.log('starting consumer!');
-			return kinesis.startConsumer();
-		};
-
-		executeTrigger();
+			// Select what to return
+			switch (simplifyResponse) {
+				case 'message':
+					this.emit([this.helpers.returnJsonArray(data)]);
+					break;
+				case 'record':
+					this.emit([this.helpers.returnJsonArray(data.records)]);
+					break;
+				case 'data':
+					this.emit([this.helpers.returnJsonArray(data.records.map((r: any) => r.data))]);
+					break;
+			}
+		});
 
 		// Start!
-		// Set a timer to close the stream after 5 seconds...
+		console.log('pre startConsumer');
+		await kinesis.startConsumer();
+		console.log('post startConsumer');
 
 		// The "closeFunction" function gets called by n8n whenever
 		// the workflow gets deactivated and so clean up.
 		async function closeFunction() {
 			console.log('Received closeFunction');
 			await kinesis.stopConsumer();
-			kinesis = null;
 		}
 
 		// The "manualTriggerFunction" function gets called by n8n
@@ -169,7 +162,7 @@ export class AwsKinesisTrigger implements INodeType {
 		// to expect.
 		async function manualTriggerFunction() {
 			console.log('Received manualTriggerFunction');
-			return executeTrigger();
+			return kinesis.startConsumer();
 		}
 
 		return {
