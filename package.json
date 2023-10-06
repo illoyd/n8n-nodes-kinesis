@@ -1,19 +1,16 @@
 {
-  "name": "n8n-nodes-kinesis",
+  "name": "@illoyd/n8n-nodes-kinesis",
   "version": "0.1.0",
-  "description": "",
+  "description": "![Banner image](https://user-images.githubusercontent.com/10284570/173569848-c624317f-42b1-45a6-ab09-f0ea3c247648.png)",
   "keywords": [
     "n8n-community-node-package"
   ],
   "license": "MIT",
-  "homepage": "",
-  "author": {
-    "name": "",
-    "email": ""
-  },
+  "homepage": "https://github.com/illoyd/n8n-nodes-kinesis#readme",
+  "author": "Ian Lloyd",
   "repository": {
     "type": "git",
-    "url": "https://github.com/illoyd/n8n-nodes-kinesis.git"
+    "url": "git+https://github.com/illoyd/n8n-nodes-kinesis.git"
   },
   "main": "index.js",
   "scripts": {
@@ -48,5 +45,8 @@
   },
   "dependencies": {
     "lifion-kinesis": "^1.3.3"
+  },
+  "bugs": {
+    "url": "https://github.com/illoyd/n8n-nodes-kinesis/issues"
   }
 }
