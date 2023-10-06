@@ -1,5 +1,5 @@
 {
-	"node": "n8n-nodes-base.AwsKinesis",
+	"node": "n8n-nodes-base.awsKinesis",
 	"nodeVersion": "1.0",
 	"codexVersion": "1.0",
 	"categories": ["Development"],

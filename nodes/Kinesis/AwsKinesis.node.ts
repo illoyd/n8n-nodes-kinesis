@@ -10,7 +10,7 @@ const Kinesis = require('lifion-kinesis');
 export class AwsKinesis implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: 'AWS Kinesis',
-		name: 'AwsKinesis',
+		name: 'awsKinesis',
 		icon: 'file:aws-kinesis.svg',
 		group: ['transform'],
 		version: 1,

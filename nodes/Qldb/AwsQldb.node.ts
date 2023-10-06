@@ -10,7 +10,7 @@ import { Value } from 'ion-js/dist/commonjs/es6/dom';
 export class AwsQldb implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: 'AWS QLDB',
-		name: 'AwsQldb',
+		name: 'awsQldb',
 		// eslint-disable-next-line n8n-nodes-base/node-class-description-icon-not-svg
 		icon: 'file:amazon-qldb.png',
 		group: ['transform'],
@@ -51,10 +51,10 @@ export class AwsQldb implements INodeType {
 				noDataExpression: true,
 				options: [
 					{ name: 'All', value: 'all' },
-					{ name: 'Select', value: 'select' },
 					{ name: 'Create', value: 'insert' },
-					{ name: 'Update', value: 'update' },
 					{ name: 'Create or Update', value: 'upsert' },
+					{ name: 'Select', value: 'select' },
+					{ name: 'Update', value: 'update' },
 				],
 				default: 'select',
 				placeholder: 'ledgerName',
@@ -77,12 +77,12 @@ export class AwsQldb implements INodeType {
 				displayOptions: { show: { operation: ['insert', 'update', 'upsert'] } },
 			},
 			{
-				displayName: 'Flatten results',
+				displayName: 'Flatten Results',
 				name: 'flattenResults',
 				type: 'boolean',
 				default: false,
 				description:
-					'Unpack document updates; note that this may create more or fewer outputs than inputs',
+					'Whether to unpack document updates; note that this may create more or fewer outputs than inputs',
 			},
 		],
 	};
